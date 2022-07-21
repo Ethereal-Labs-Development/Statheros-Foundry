@@ -14,7 +14,7 @@ interface User {
     function approve(address, uint256) external;
 }
 
-contract Utility is DSTest {
+contract Utility is Test {
 
     Hevm hevm;
 
