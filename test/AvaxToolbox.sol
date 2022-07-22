@@ -28,10 +28,59 @@ contract AvaxToolbox {
     /*****************/
     /*** Constants ***/
     /*****************/
-    
+
     uint256 constant USD = 10 ** 6;
     uint256 constant BTC = 10 ** 8;
     uint256 constant WAD = 10 ** 18;
     uint256 constant RAY = 10 ** 27;
+
+    /*****************/
+    /*** Utilities ***/
+    /*****************/
+    
+    event Debug(string, uint256);
+    event Debug(string, address);
+    event Debug(string, bool);
+    
+    event logUint(string, uint256);
+
+    // Verify equality within accuracy decimals
+    function withinPrecision(uint256 val0, uint256 val1, uint256 accuracy) public {
+        uint256 diff  = val0 > val1 ? val0 - val1 : val1 - val0;
+        if (diff == 0) return;
+
+        uint256 denominator = val0 == 0 ? val1 : val0;
+        bool check = ((diff * RAY) / denominator) < (RAY / 10 ** accuracy);
+
+        if (!check){
+            emit logUint("Error: approx a == b not satisfied, accuracy digits ", accuracy);
+            emit logUint("  Expected", val0);
+            emit logUint("    Actual", val1);
+            //fail();
+        }
+    }
+
+    // Verify equality within difference
+    function withinDiff(uint256 val0, uint256 val1, uint256 expectedDiff) public {
+        uint256 actualDiff = val0 > val1 ? val0 - val1 : val1 - val0;
+        bool check = actualDiff <= expectedDiff;
+
+        if (!check) {
+            emit logUint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
+            emit logUint("  Expected", val0);
+            emit logUint("    Actual", val1);
+            //fail();
+        }
+    }
+
+    function constrictToRange(uint256 val, uint256 min, uint256 max) public pure returns (uint256) {
+        return constrictToRange(val, min, max, false);
+    }
+
+    function constrictToRange(uint256 val, uint256 min, uint256 max, bool nonZero) public pure returns (uint256) {
+        if      (val == 0 && !nonZero) return 0;
+        else if (max == min)           return max;
+        else                           return val % (max - min) + min;
+    }
 
 }

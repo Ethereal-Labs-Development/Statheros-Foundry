@@ -51,7 +51,7 @@ contract StakeTest is Test, AvaxToolbox {
 
         //Post-State check: Verify address(1) is now the treasury.
         assert(stake.treasury() == address(1));
-    }
+    } 
 
     // updateTreasury restrictions
     function test_stake_updateTreasury_restrictions() public {
@@ -128,13 +128,13 @@ contract StakeTest is Test, AvaxToolbox {
         // Pre-State: USDC should be the current stable currency of the Stake.sol contract.
         assertEq(stake.stableCurrency(), USDC);
 
-        // State Change: Update the stable currency from USDC to USDT.
-        dev.try_updateStableCurrency(address(stake), USDT);
+        // State Change: Update the stable currency from USDC to DAI.
+        dev.try_updateStableCurrency(address(stake), DAI);
 
-        // Post-State: Confirm that the new stable currency is equivalent to USDT.
-        assertEq(stake.stableCurrency(), USDT);
+        // Post-State: Confirm that the new stable currency is equivalent to DAI.
+        assertEq(stake.stableCurrency(), DAI);
         
-        // State Change: Change the stable currency from USDT back to USDC.
+        // State Change: Change the stable currency from DAI back to USDC.
         dev.try_updateStableCurrency(address(stake), USDC);
 
         // Post-State: confirm that the new stable currency is equivalent to USDC.
@@ -155,17 +155,17 @@ contract StakeTest is Test, AvaxToolbox {
         // Verify dev cannot update stable currency to $STATH.
         assert(!dev.try_updateStableCurrency(address(stake), stake.soulboundToken()));
 
-        // Verify dev can update stable currency to USDT.
-        assert(dev.try_updateStableCurrency(address(stake), USDT));
+        // Verify dev can update stable currency to DAI.
+        assert(dev.try_updateStableCurrency(address(stake), DAI));
 
         // Verify admin cannot update stable currency.
-        assert(!arn.try_updateStableCurrency(address(stake), USDT));
+        assert(!arn.try_updateStableCurrency(address(stake), DAI));
 
         // Verify manager cannot update stable currency.
-        assert(!mgr.try_updateStableCurrency(address(stake), USDT));
+        assert(!mgr.try_updateStableCurrency(address(stake), DAI));
 
         // Verify users cannot update stable currency.
-        assert(!joe.try_updateStableCurrency(address(stake), USDT));
+        assert(!joe.try_updateStableCurrency(address(stake), DAI));
     }
 
 }

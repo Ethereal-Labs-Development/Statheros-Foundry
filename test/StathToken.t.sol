@@ -10,7 +10,7 @@ import "../src/users/Actor.sol";
 import "./AvaxToolbox.sol";
 
 
-contract StathTokenTest is Test, AvaxToolbox {
+contract StathTokenTest is Test {
     
     StathToken stathToken;
 
