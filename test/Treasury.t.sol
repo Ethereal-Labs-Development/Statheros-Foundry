@@ -7,10 +7,10 @@ import "../src/Treasury.sol";
 
 import "../src/users/Actor.sol";
 
-import "./AvaxToolbox.sol";
+import "./PolygonUtility.sol";
 
 
-contract TreasuryTest is Test, AvaxToolbox {
+contract TreasuryTest is Test, PolygonUtility {
 
     Treasury treasury;
 

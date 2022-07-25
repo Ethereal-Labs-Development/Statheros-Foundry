@@ -9,9 +9,9 @@ import "../src/StathToken.sol";
 
 import "../src/users/Actor.sol";
 
-import "./AvaxToolbox.sol";
+import "./PolygonUtility.sol";
 
-contract StakeTest is Test, AvaxToolbox {
+contract StakeTest is Test, PolygonUtility {
 
     Stake stake;
     Treasury treasury;

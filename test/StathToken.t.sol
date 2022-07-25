@@ -7,7 +7,7 @@ import "../src/StathToken.sol";
 
 import "../src/users/Actor.sol";
 
-import "./AvaxToolbox.sol";
+import "./PolygonUtility.sol";
 
 
 contract StathTokenTest is Test {
