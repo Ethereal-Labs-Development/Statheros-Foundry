@@ -25,7 +25,7 @@ contract PolygonUtility {
     Actor  dev = new Actor(); // Owner/Dev
     Actor  arn = new Actor(); // Aaron/Admin
     Actor  mgr = new Actor(); // Account Manager
-    Actor  joe = new Actor(); // Normal User
+    Actor  joe = new Actor(); // Stakeholder
 
     /*****************/
     /*** Constants ***/
