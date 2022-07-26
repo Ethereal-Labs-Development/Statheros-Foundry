@@ -175,6 +175,11 @@ contract Stake is Ownable{
         
     }
 
+    function getUsdAmountOut(address token) public view returns (uint256) {
+        
+
+    }
+
     /// @notice Used to mint stakeholders soulbound tokens upon staking.
     /// @param _wallet account that we're minting tokens for.
     /// @param _amount amount of tokens being minted to account.
