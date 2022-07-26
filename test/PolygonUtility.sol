@@ -5,9 +5,9 @@ import "../src/users/Actor.sol";
 
 contract PolygonUtility {
 
-    /*******************************/
-    /*** AVAX Contract Addresses ***/
-    /*******************************/
+    /**********************************/
+    /*** Polygon Contract Addresses ***/
+    /**********************************/
 
     // Mainnet Addresses
 
