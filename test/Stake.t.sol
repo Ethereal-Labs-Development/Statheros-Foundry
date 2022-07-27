@@ -175,10 +175,10 @@ contract StakeTest is Test, PolygonUtility {
     }
 
     function test_stake_getUsdAmountOutMulti() public {
-        uint24 poolFee = 3000;
+        //uint24 poolFee = 3000;
 
-        bytes memory path = abi.encodePacked(USDC, poolFee, WMATIC, poolFee, WETH);
-        stake.getUsdAmountOutMulti(path, 10 * 10**18);
+        //bytes memory path = abi.encodePacked(USDC, poolFee, WMATIC, poolFee, WETH);
+        //stake.getUsdAmountOutMulti(path, 10 * 10**18);
     }
 
 }
