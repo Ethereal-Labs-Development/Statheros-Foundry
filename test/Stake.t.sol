@@ -169,9 +169,14 @@ contract StakeTest is Test, PolygonUtility {
     }
 
     // ~ getUsdAmountOut() Testing ~
+    function test_stake_getOracleUSDQuoteSingle(uint256 _amount) public {
+        uint256 quote = stake.getOracleUSDQuoteSingle(WMATIC, _amount);
+        assert(quote >= 0);
+    }
 
-    function test_stake_getUsdAmountOutSingle() public {
-        stake.getUsdAmountOutSingle(WMATIC, 1000 ether);
+    function test_stake_getUsdAmountOutSingle(uint256 _amount) public {
+        uint256 quote = stake.getUsdAmountOutSingle(WMATIC, _amount);
+        assert(quote >= 0);
     }
 
     function test_stake_getUsdAmountOutMulti() public {

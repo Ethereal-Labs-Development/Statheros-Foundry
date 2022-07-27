@@ -3,7 +3,8 @@ pragma solidity ^0.8.6;
 
 import "./OpenZeppelin/Ownable.sol";
 
-import { IQuoter } from "./interfaces/InterfacesAggregated.sol";
+import { OracleLibrary } from "./libraries/OracleLibrary.sol";
+import { IQuoter, IUniswapV3Factory } from "./interfaces/InterfacesAggregated.sol";
 
 /// @dev    This contract allows accounts to stake crypto assets from a whitelist of tokens.
 ///         This contract contains a whitelist of accepted assets.
@@ -31,7 +32,8 @@ contract Stake is Ownable{
 
     mapping(address => bool) public tokenWhitelist; /// @notice whitelist of accepted assets to be staked.
 
-    address Quoter = 0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6;
+    address constant UNISWAP_V3_QUOTER = 0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6;
+    address constant UNISWAP_V3_FACTORY = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
     // TIMELOCKS
     // 1 = 1 month
@@ -179,12 +181,32 @@ contract Stake is Ownable{
         
     }
 
+    /// @notice This is a view function that returns a quoted amount in USD for an amount of _tokenIn.
+    /// @param _tokenIn address of an accepted staking asset.
+    /// @param _amount amount of an asset to get a USD quote for.
+    function getOracleUSDQuoteSingle(address _tokenIn, uint256 _amount) public view returns (uint256) {      
+        uint32 period = 30; // = 30 seconds
+        uint24 fee = 500;   // = 0.05%
+
+        // get address of the pool for the staked asset, stable currency, and associated fee.
+        address pool = IUniswapV3Factory(UNISWAP_V3_FACTORY).getPool(_tokenIn, stableCurrency, fee);
+
+        require(pool != address(0), "Pool does not exist!");
+        
+        // get tick in order to calculate the quote in terms of stable currency.
+        // recommended in order to limit arbitrage against the contract and provide 
+        // accurate quotes.
+        int24 tick = OracleLibrary.consult(pool, period);
+        return OracleLibrary.getQuoteAtTick(tick, uint128(_amount), _tokenIn, stableCurrency);
+    }
+
+
     /// @notice This is a view function to get the Usd amount of any amount of tokens.
     /// @param  _tokenIn holds the token erc20 address going in.
     /// @param  _amount holds the amount of that token.
-    function getUsdAmountOutSingle(address _tokenIn, uint _amount) public returns (uint256) {
+    function getUsdAmountOutSingle(address _tokenIn, uint256 _amount) public returns (uint256) { 
         uint256 amountOut = 
-        IQuoter(Quoter).quoteExactInputSingle(
+        IQuoter(UNISWAP_V3_QUOTER).quoteExactInputSingle(
             _tokenIn,
             stableCurrency,
             500, //0.05%
@@ -198,7 +220,7 @@ contract Stake is Ownable{
     /// @notice This is a view function to get the Usd amount of any amount of tokens.
     function getUsdAmountOutMulti(bytes memory path, uint _amount) public returns (uint256) {
         uint256 amountOut = 
-        IQuoter(Quoter).quoteExactInput(
+        IQuoter(UNISWAP_V3_QUOTER).quoteExactInput(
             path,
             _amount
         );

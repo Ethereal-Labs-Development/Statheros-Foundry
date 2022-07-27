@@ -26,7 +26,7 @@ interface IWETH {
     function withdraw(uint256) external;
 }
 
-// v3 Uniswap IQuoter.sol
+// V3 Uniswap IQuoter.sol
 // Deployed: https://polygonscan.com/address/0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6#contracts
 // Docs: https://docs.uniswap.org/protocol/reference/periphery/interfaces/IQuoter
 
@@ -72,4 +72,31 @@ interface IQuoter {
         uint256 amountOut,
         uint160 sqrtPriceLimitX96
     ) external returns (uint256 amountIn);
+}
+
+// V3 Uniswap UniswapV3Factory.sol
+// Deployed: https://polygonscan.com/address/0x1F98431c8aD98523631AE4a59f267346ea31F984#code
+// Docs: https://docs.uniswap.org/protocol/reference/core/interfaces/IUniswapV3Factory
+
+interface IUniswapV3Factory {
+
+    function getPool(
+        address tokenA,
+        address tokenB,
+        uint24 fee
+    ) external view returns (address pool);
+
+}
+
+// V3 Uniswap UniswapV3Pool.sol
+// Deployed: https://polygonscan.com/address/0x1F98431c8aD98523631AE4a59f267346ea31F984#code
+// Docs: https://docs.uniswap.org/protocol/reference/core/interfaces/IUniswapV3Factory
+
+interface IUniswapV3Pool {
+
+    function observe(uint32[] calldata secondsAgos)
+    external
+    view
+    returns (int56[] memory tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s);
+
 }
