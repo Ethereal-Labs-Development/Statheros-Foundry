@@ -168,4 +168,17 @@ contract StakeTest is Test, PolygonUtility {
         assert(!joe.try_updateStableCurrency(address(stake), DAI));
     }
 
+    // ~ getUsdAmountOut() Testing ~
+
+    function test_stake_getUsdAmountOutSingle() public {
+        stake.getUsdAmountOutSingle(WMATIC, 1000 ether);
+    }
+
+    function test_stake_getUsdAmountOutMulti() public {
+        uint24 poolFee = 3000;
+
+        bytes memory path = abi.encodePacked(USDC, poolFee, WMATIC, poolFee, WETH);
+        stake.getUsdAmountOutMulti(path, 10 * 10**18);
+    }
+
 }

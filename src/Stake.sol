@@ -3,6 +3,8 @@ pragma solidity ^0.8.6;
 
 import "./OpenZeppelin/Ownable.sol";
 
+import { IQuoter } from "./interfaces/InterfacesAggregated.sol";
+
 /// @dev    This contract allows accounts to stake crypto assets from a whitelist of tokens.
 ///         This contract contains a whitelist of accepted assets.
 ///         This contract will distribute rewards to stakeholders at a dynamic APR.
@@ -28,6 +30,8 @@ contract Stake is Ownable{
     bool public stakingEnabled;     /// @notice Bool of whether or not the contract is enabled.
 
     mapping(address => bool) public tokenWhitelist; /// @notice whitelist of accepted assets to be staked.
+
+    address Quoter = 0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6;
 
     // TIMELOCKS
     // 1 = 1 month
@@ -175,9 +179,31 @@ contract Stake is Ownable{
         
     }
 
-    function getUsdAmountOut(address token) public view returns (uint256) {
-        
+    /// @notice This is a view function to get the Usd amount of any amount of tokens.
+    /// @param  _tokenIn holds the token erc20 address going in.
+    /// @param  _amount holds the amount of that token.
+    function getUsdAmountOutSingle(address _tokenIn, uint _amount) public returns (uint256) {
+        uint256 amountOut = 
+        IQuoter(Quoter).quoteExactInputSingle(
+            _tokenIn,
+            stableCurrency,
+            500, //0.05%
+            _amount,
+            0
+        );
 
+        return amountOut;
+    }
+
+    /// @notice This is a view function to get the Usd amount of any amount of tokens.
+    function getUsdAmountOutMulti(bytes memory path, uint _amount) public returns (uint256) {
+        uint256 amountOut = 
+        IQuoter(Quoter).quoteExactInput(
+            path,
+            _amount
+        );
+
+        return amountOut;
     }
 
     /// @notice Used to mint stakeholders soulbound tokens upon staking.

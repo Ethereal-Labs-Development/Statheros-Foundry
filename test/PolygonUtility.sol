@@ -17,6 +17,8 @@ contract PolygonUtility {
     address constant USDC   = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;  // https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174
     address constant USDT   = 0xc2132D05D31c914a87C6611C10748AEb04B58e8F;  // https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f
     address constant WBTC   = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;  // https://polygonscan.com/token/0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6
+    address constant WETH   = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;  // https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619
+
 
     /**************/
     /*** Actors ***/
