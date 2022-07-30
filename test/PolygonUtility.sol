@@ -2,8 +2,11 @@
 pragma solidity ^0.8.6;
 
 import "../src/users/Actor.sol";
+import "../lib/forge-std/src/Vm.sol";
+import "../lib/forge-std/src/Test.sol";
+import "../lib/forge-std/lib/ds-test/src/test.sol";
 
-contract PolygonUtility {
+contract PolygonUtility is Test {
 
     /**********************************/
     /*** Polygon Contract Addresses ***/
@@ -42,11 +45,57 @@ contract PolygonUtility {
     /*** Utilities ***/
     /*****************/
     
+    struct Token {
+        address addr; // ERC20 Mainnet address
+        uint256 slot; // Balance storage slot
+        address orcl; // Chainlink oracle address
+    }
+ 
+    mapping (bytes32 => Token) tokens;
+
     event Debug(string, uint256);
     event Debug(string, address);
     event Debug(string, bool);
     
     event logUint(string, uint256);
+
+    /******************************/
+    /*** Test Utility Functions ***/
+    /******************************/
+
+    function setUpTokens() public {
+
+        tokens["USDC"].addr = USDC;
+        tokens["USDC"].slot = 9;
+
+        tokens["DAI"].addr = DAI;
+        tokens["DAI"].slot = 2;
+        //tokens["DAI"].orcl = 0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9;
+
+        tokens["WETH"].addr = WETH;
+        tokens["WETH"].slot = 3;
+        //tokens["WETH"].orcl = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
+
+        tokens["WBTC"].addr = WBTC;
+        tokens["WBTC"].slot = 0;
+        //tokens["WBTC"].orcl = 0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c;
+    }
+
+    // Manipulate mainnet ERC20 balance.
+    function mint(bytes32 symbol, address account, uint256 amt) public {
+        address addr = tokens[symbol].addr;
+        uint256 slot  = tokens[symbol].slot;
+        uint256 bal = IERC20(addr).balanceOf(account);
+
+        // use Foundry's vm to call store cheatcode
+        vm.store(
+            addr,
+            keccak256(abi.encode(account, slot)), // Mint tokens
+            bytes32(bal + amt)
+        );
+
+        assertEq(IERC20(addr).balanceOf(account), bal + amt); // Assert new balance
+    }
 
     // Verify equality within accuracy decimals
     function withinPrecision(uint256 val0, uint256 val1, uint256 accuracy) public {

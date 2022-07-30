@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.0 ^0.8.0;
+pragma solidity ^0.8.0;
 
 /// @title Contains 512-bit math functions
 /// @notice Facilitates multiplication and division that can have overflow of an intermediate value without any loss of precision
@@ -61,7 +61,9 @@ library FullMath {
         // Factor powers of two out of denominator
         // Compute largest power of two divisor of denominator.
         // Always >= 1.
-        uint256 twos = uint256(-int256(denominator)) & denominator;
+        /// https://ethereum.stackexchange.com/questions/96642/unary-operator-minus-cannot-be-applied-to-type-uint256
+        /// @notice the line below was altered to resolve >0.8.0 compiler issues
+        uint256 twos = denominator & (~denominator + 1);
         // Divide denominator by power of two
         assembly {
             denominator := div(denominator, twos)

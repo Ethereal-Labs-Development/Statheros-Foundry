@@ -19,6 +19,9 @@ contract StakeTest is Test, PolygonUtility {
 
     function setUp() public {
 
+        // setup tokens for use with Uniswap V3???
+        setUpTokens();
+
         stathToken = new StathToken();
         treasury = new Treasury(USDC);
 
@@ -28,6 +31,8 @@ contract StakeTest is Test, PolygonUtility {
             address(stathToken),
             address(dev)
         );
+
+        dev.try_updateTokenWhitelist(address(stake), WBTC, true);
     }
 
     // Verify initial state of stake contract.
@@ -169,9 +174,12 @@ contract StakeTest is Test, PolygonUtility {
     }
 
     // ~ getUsdAmountOut() Testing ~
-    function test_stake_getOracleUSDQuoteSingle(uint256 _amount) public {
-        uint256 quote = stake.getOracleUSDQuoteSingle(WMATIC, _amount);
-        assert(quote >= 0);
+    function test_stake_getOracleUSDQuote() public {
+        uint256 _amount = 100 ether;
+        (uint256 oracleQuote,) = stake.getOracleStableQuote(WMATIC, _amount, 90);
+        uint256 quoterQuote = stake.getUsdAmountOutSingle(WMATIC, _amount);
+        assert(oracleQuote >= 0);
+        assert(quoterQuote >= 0);
     }
 
     function test_stake_getUsdAmountOutSingle(uint256 _amount) public {
@@ -184,6 +192,23 @@ contract StakeTest is Test, PolygonUtility {
 
         //bytes memory path = abi.encodePacked(USDC, poolFee, WMATIC, poolFee, WETH);
         //stake.getUsdAmountOutMulti(path, 10 * 10**18);
+    }
+
+    function test_stake_mintFoundry() public {
+        
+        assertEq(IERC20(WBTC).balanceOf(address(10)), 0);
+        mint("WBTC", address(10), 10*BTC);
+        
+        vm.prank(address(10));
+        IERC20(WBTC).approve(address(stake), 10*BTC);
+        vm.prank(address(10));
+        uint256 amount = stake.stakeAsset(WBTC, 10*BTC, address(10), 0, "joe");
+
+        assertGt(amount, 0);
+        assertEq(IERC20(WBTC).balanceOf(address(10)), 0);
+        assertEq(IERC20(WBTC).balanceOf(address(stake)), 0);
+        assertEq(IERC20(USDC).balanceOf(address(stake)), amount);
+        emit logUint("USDC swapped for:", amount);
     }
 
 }

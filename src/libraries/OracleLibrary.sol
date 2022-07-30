@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity >=0.5.0 ^0.8.0;
+pragma solidity ^0.8.0;
 
-import './FullMath.sol';
-import './TickMath.sol';
-import { IUniswapV3Pool } from '../interfaces/InterfacesAggregated.sol/';
+import "./FullMath.sol";
+import "./TickMath.sol";
+import { IUniswapV3Pool } from "../interfaces/InterfacesAggregated.sol";
 
 /// @title Oracle library
 /// @notice Provides functions to integrate with V3 pool oracle
 library OracleLibrary {
-    /// @notice Calculates time-weighted means of tick and liquidity for a given Uniswap V3 pool
+    
+    /// @notice Calculates time-weighted means of tic, minus liquidity, for a given Uniswap V3 pool
     /// @param pool Address of the pool that we want to observe
     /// @param secondsAgo Number of seconds in the past from which to calculate the time-weighted means
     /// @return arithmeticMeanTick The arithmetic mean tick from (block.timestamp - secondsAgo) to block.timestamp
@@ -28,9 +29,11 @@ library OracleLibrary {
 
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
 
-        arithmeticMeanTick = int24(tickCumulativesDelta / int32(secondsAgo));
+        /// @notice explicit type conversions applied to resolve compiler warnings.
+        arithmeticMeanTick = int24(tickCumulativesDelta / int56(int32(secondsAgo)));
         // Always round to negative infinity
-        if (tickCumulativesDelta < 0 && (tickCumulativesDelta % int32(secondsAgo) != 0)) arithmeticMeanTick--;
+        /// @notice explicit type conversions applied to revolve compiler warnings.
+        if (tickCumulativesDelta < 0 && (tickCumulativesDelta % int56(int32(secondsAgo)) != 0)) arithmeticMeanTick--;
 
     }
 
