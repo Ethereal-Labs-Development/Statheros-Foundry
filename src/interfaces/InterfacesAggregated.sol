@@ -108,7 +108,7 @@ interface IUniswapV3Pool {
 
 interface ISwapRouter {
 
-        struct ExactInputSingleParams {
+    struct ExactInputSingleParams {
         address tokenIn;
         address tokenOut;
         uint24 fee;

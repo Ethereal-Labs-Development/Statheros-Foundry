@@ -56,8 +56,6 @@ contract PolygonUtility is Test {
     event Debug(string, uint256);
     event Debug(string, address);
     event Debug(string, bool);
-    
-    event logUint(string, uint256);
 
     /******************************/
     /*** Test Utility Functions ***/
@@ -87,7 +85,7 @@ contract PolygonUtility is Test {
         uint256 slot  = tokens[symbol].slot;
         uint256 bal = IERC20(addr).balanceOf(account);
 
-        // use Foundry's vm to call store cheatcode
+        // use Foundry's vm to call "store" cheatcode
         vm.store(
             addr,
             keccak256(abi.encode(account, slot)), // Mint tokens

@@ -208,7 +208,8 @@ contract StakeTest is Test, PolygonUtility {
         assertEq(IERC20(WBTC).balanceOf(address(10)), 0);
         assertEq(IERC20(WBTC).balanceOf(address(stake)), 0);
         assertEq(IERC20(USDC).balanceOf(address(stake)), amount);
-        emit logUint("USDC swapped for:", amount);
+        emit Debug("USDC swapped for:", amount);
+
     }
 
 }
