@@ -173,26 +173,22 @@ contract StakeTest is Test, PolygonUtility {
         assert(!joe.try_updateStableCurrency(address(stake), DAI));
     }
 
-    // ~ getUsdAmountOut() Testing ~
-    function test_stake_getOracleUSDQuote() public {
+    // ~ getOracleStableQuote() Testing ~
+    
+    function test_stake_getOracleStableQuote() public {
         uint256 _amount = 100 ether;
         (uint256 oracleQuote,) = stake.getOracleStableQuote(WMATIC, _amount, 90);
-        uint256 quoterQuote = stake.getUsdAmountOutSingle(WMATIC, _amount);
         assert(oracleQuote >= 0);
-        assert(quoterQuote >= 0);
     }
+
+    // ~ getUsdAmountOutSingle() Testing ~
 
     function test_stake_getUsdAmountOutSingle(uint256 _amount) public {
         uint256 quote = stake.getUsdAmountOutSingle(WMATIC, _amount);
         assert(quote >= 0);
     }
 
-    function test_stake_getUsdAmountOutMulti() public {
-        //uint24 poolFee = 3000;
-
-        //bytes memory path = abi.encodePacked(USDC, poolFee, WMATIC, poolFee, WETH);
-        //stake.getUsdAmountOutMulti(path, 10 * 10**18);
-    }
+    // ~ stakeAsset() Testing ~
 
     function test_stake_mintFoundry() public {
         
@@ -208,7 +204,6 @@ contract StakeTest is Test, PolygonUtility {
         assertEq(IERC20(WBTC).balanceOf(address(10)), 0);
         assertEq(IERC20(WBTC).balanceOf(address(stake)), 0);
         assertEq(IERC20(USDC).balanceOf(address(stake)), amount);
-        emit Debug("USDC swapped for:", amount);
 
     }
 
