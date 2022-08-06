@@ -32,7 +32,8 @@ contract Stake is Ownable{
     bool public stakingEnabled;     /// @notice Bool of whether or not the contract is enabled.
 
     mapping(address => bool) public tokenWhitelist; /// @notice whitelist of accepted assets to be staked.
-    mapping(address => PoolData) public tokenPools; /// @notice mapping of accepted assets to valid Uniswap V3 pool data.
+    mapping(address => PoolData) public tokenPools; /// @notice mapping of accepted assets to valid Uniswap V3 pools.
+    mapping(uint24 => bool) public validFees; /// @notice mapping of accepted fee amounts under Uniswap V3 protocol.
 
     /// @notice constant addresses associated with Uniswap V3 interface deployments.
     address constant UNISWAP_V3_QUOTER = 0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6;
@@ -71,7 +72,11 @@ contract Stake is Ownable{
         bool stakeComplete; // If true, do not autocompound rewards, do not give rewards... until claim or restake.
     }
 
-    /// TODO: Add natspec to this and consider how to organize pool data for easy retrieval, addition, and removal!
+    /// TODO: Consider how to organize pool data for easy retrieval, addition, and removal!
+    /// @notice Struct containing data for the pool between stable currency and whitelisted assets
+    /// @param token contract address of a whitelisted asset.
+    /// @param decimals decimal value of a whitelisted asset.
+    /// @param poolFee fee in the form of x*10**4, where x is the fee percentage. (0.3% => 0.3*10**4 = 3000)
     struct PoolData {
         address token;
         uint256 decimals;
@@ -145,28 +150,45 @@ contract Stake is Ownable{
         tokenWhitelist[_token] = _whitelisted;
     }
 
+    /// @notice Updates the tokenPools mapping.
+    /// @param _token contract address of token being updated in the pool data.
+    /// @param _decimals decimals for the input token.
+    /// @param _poolFee fee associated with the pool.
+    function updateTokenPools(address _token, uint256 _decimals, uint24 _poolFee) public onlyOwner() {
+        require(_token != address(this), "Stake.sol::updateTokenPools() cannot contain Stake.sol address");
+        require(_token != treasury, "Stake.sol::updateTokenPools() cannot contain Treasury address");
+        require(_token != soulboundToken, "Stake.sol::updateTokenPools() cannot contain $STATH address");
+        require(validFees[_poolFee], "Stake.sol::updateTokenPools() pool fee must be 0.01, 0.05, 0.3, or 1 %");
+        require(_decimals <= 10**18 && _decimals >= 0, "Stake.sol::updateTokenPools() invalid decimal value");
+        require(IUniswapV3Factory(UNISWAP_V3_FACTORY).getPool(_token, stableCurrency, _poolFee) != address(0), "Stake.sol()::updateTokenPools() invalid Uniswap V3 pool.");
+
+        tokenPools[_token] = PoolData({
+            token: _token,
+            decimals: _decimals,
+            poolFee: _poolFee
+        });
+    }
+
     /// @notice Called when an account is staking, creating a stake.
     /// @dev should send assets to swap then to the Treasury.
     /// @param _asset contract address of a whitelisted asset being staked.
     /// @param _assetAmount amount of the asset being staked.
-    /// @param _wallet account that is staking the assets.
+    /// @param _wallet account that is staking the assets.  (potentially use msg.sender instead, more secure)
     /// @param _timelock type of timelock designated by 1, 2, 3, or 4.
     /// @param _username Telegram username associated with the address.
     function stakeAsset(address _asset, uint256 _assetAmount, address _wallet, uint16 _timelock, string calldata _username) public returns (uint256 _receiptAmount) {
         require(_assetAmount > 0, "Stake.sol::stakeAsset() asset amount must be greater than 0");
         require(tokenWhitelist[_asset], "Stake.sol::stakeAsset() asset must be whitelisted");
-
         // assume that if the asset is whitelisted we have a valid pool to perform the swap
 
-        // _quoteAmount will be adjusted on front end by increasing amount by 5-10% to account for slight changes. there is a Uniswap example with this occurring.
-        (uint256 _quoteAmount,) = getOracleStableQuote(_asset, _assetAmount, 90);
-        // Uniswap V3 single swap, where we provide an amount of _asset to receive an amount of stableCurrency
+        // NOTE: getOracleStableQuote calls IUniswapV3Factory().getPool() so the pool is validated 
+        // within this call to the oracle and will revert in the event of an invalid pool.
+        uint256 _quoteAmount = getOracleStableQuote(_asset, _assetAmount, 90);
 
         TransferHelper.safeTransferFrom(_asset, msg.sender, address(this), _assetAmount);
         TransferHelper.safeApprove(_asset, address(UNISWAP_V3_SWAPROUTER), _assetAmount);
-
-        //emit logUint("Balance of Stake.sol", IERC20(address(0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6)).balanceOf(address(this)));
         
+        // Uniswap V3 single swap, where we provide an amount of _asset to receive an amount of stableCurrency
         // We’ll want to swap using exactInputSingle because we will accept an exact amount of _asset after quoting them a price on the front end.
         ISwapRouter.ExactInputSingleParams memory swap = ISwapRouter.ExactInputSingleParams({
             tokenIn: _asset, // we’re taking in a valid _asset from the staker
@@ -222,25 +244,30 @@ contract Stake is Ownable{
         
     }
 
-    /// @notice This is a view function that returns a quoted amount in USD for an amount of _tokenIn.
+    /// @notice View function that returns a stable currency quote amount for an amount of _tokenIn.
     /// @param _tokenIn address of an accepted staking asset.
-    /// @param _amount amount of an asset to get a USD quote for.
-    function getOracleStableQuote(address _tokenIn, uint256 _amount, uint32 _period) public view returns (uint256 quote, uint256 decimals) {      
-        // _tokenIn should be an accepted asset and exist in tokenWhitelist
-        //require(tokenWhitelist[_tokenIn], "Asset ");
-        
-        uint24 poolFee = 3000;//tokenPools[_tokenIn].poolFee;
+    /// @param _amount amount of an asset to get a stable currency quote amount for.
+    /// @param _period number of seconds in the past from which to calculate the quote.
+    function getOracleStableQuote(address _tokenIn, uint256 _amount, uint32 _period) public view returns (uint256 _quote) {      
+        // _tokenIn should be an accepted asset and exist in tokenWhitelist mapping.
+        //require(tokenWhitelist[_tokenIn], "Stake.sol::getOracleStableQuote() asset must be whitelisted");
+        // _tokenIn should also have PoolData stored in tokenPools mapping.
+        //require(tokenPools[_tokenIn]), "Stake.sol::getOracleStableQuote() asset must be whitelisted");
+
+        //tokenPools[_tokenIn].poolFee;
+        uint24 poolFee = 3000;  // 0.3%
 
         // get address of the pool for the staked asset, stable currency, and associated fee.
         address pool = IUniswapV3Factory(UNISWAP_V3_FACTORY).getPool(_tokenIn, stableCurrency, poolFee);
 
-        require(pool != address(0), "Stake.sol::getOracleStableQuote() invalid pool.");
+        require(pool != address(0), "Stake.sol::getOracleStableQuote() invalid Uniswap V3 pool");
         
         // get tick in order to calculate the quote in terms of stable currency.
-        // recommended in order to limit arbitrage against the contract and provide 
-        // accurate quotes.
+        // recommended in order to limit arbitrage against the contract and provide accurate quotes.
         int24 tick = OracleLibrary.consult(pool, _period);
-        return (OracleLibrary.getQuoteAtTick(tick, uint128(_amount), _tokenIn, stableCurrency), tokenPools[_tokenIn].decimals);
+        // NOTE: we should definitely look into this cast since we're casting down from uint256 to uint128,
+        // for whatever reason Uniswap require uint128 in order to get quotes which is a little ridiculous...
+        return (OracleLibrary.getQuoteAtTick(tick, uint128(_amount), _tokenIn, stableCurrency));
     }
 
 
@@ -255,17 +282,6 @@ contract Stake is Ownable{
             500, //0.05%
             _amount,
             0
-        );
-
-        return amountOut;
-    }
-
-    /// @notice This is a view function to get the Usd amount of any amount of tokens.
-    function getUsdAmountOutMulti(bytes memory path, uint _amount) public returns (uint256) {
-        uint256 amountOut = 
-        IQuoter(UNISWAP_V3_QUOTER).quoteExactInput(
-            path,
-            _amount
         );
 
         return amountOut;

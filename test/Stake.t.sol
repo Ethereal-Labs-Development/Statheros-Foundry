@@ -173,19 +173,20 @@ contract StakeTest is Test, PolygonUtility {
         assert(!joe.try_updateStableCurrency(address(stake), DAI));
     }
 
+    // TODO: add better Oracle tests later on with various currencies, pools, etc.
     // ~ getOracleStableQuote() Testing ~
-    
+
     function test_stake_getOracleStableQuote() public {
         uint256 _amount = 100 ether;
-        (uint256 oracleQuote,) = stake.getOracleStableQuote(WMATIC, _amount, 90);
-        assert(oracleQuote >= 0);
+        uint256 oracleQuote = stake.getOracleStableQuote(WMATIC, _amount, 90);
+        assertGt(oracleQuote, 0);
     }
 
     // ~ getUsdAmountOutSingle() Testing ~
 
     function test_stake_getUsdAmountOutSingle(uint256 _amount) public {
         uint256 quote = stake.getUsdAmountOutSingle(WMATIC, _amount);
-        assert(quote >= 0);
+        assertGt(quote, 0);
     }
 
     // ~ stakeAsset() Testing ~
@@ -204,7 +205,7 @@ contract StakeTest is Test, PolygonUtility {
         assertEq(IERC20(WBTC).balanceOf(address(10)), 0);
         assertEq(IERC20(WBTC).balanceOf(address(stake)), 0);
         assertEq(IERC20(USDC).balanceOf(address(stake)), amount);
-
+        emit log_named_uint("USDC received = ", amount);
     }
 
 }

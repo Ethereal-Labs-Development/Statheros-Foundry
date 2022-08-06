@@ -104,10 +104,10 @@ contract PolygonUtility is Test {
         bool check = ((diff * RAY) / denominator) < (RAY / 10 ** accuracy);
 
         if (!check){
-            emit logUint("Error: approx a == b not satisfied, accuracy digits ", accuracy);
-            emit logUint("  Expected", val0);
-            emit logUint("    Actual", val1);
-            //fail();
+            // use Foundry's logging events to log string, uint pairs.
+            emit log_named_uint("Error: approx a == b not satisfied, accuracy digits ", accuracy);
+            emit log_named_uint("  Expected", val0);
+            emit log_named_uint("  Actual", val1);
         }
     }
 
@@ -117,10 +117,10 @@ contract PolygonUtility is Test {
         bool check = actualDiff <= expectedDiff;
 
         if (!check) {
-            emit logUint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
-            emit logUint("  Expected", val0);
-            emit logUint("    Actual", val1);
-            //fail();
+            // use Foundry's logging events to log string, uint pairs.
+            emit log_named_uint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
+            emit log_named_uint("  Expected", val0);
+            emit log_named_uint("  Actual", val1);
         }
     }
 
