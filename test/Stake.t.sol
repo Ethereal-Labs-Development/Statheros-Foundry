@@ -32,7 +32,6 @@ contract StakeTest is Test, PolygonUtility {
             address(dev)
         );
 
-        dev.try_updateTokenWhitelist(address(stake), WBTC, true);
     }
 
     // Verify initial state of stake contract.
@@ -184,15 +183,17 @@ contract StakeTest is Test, PolygonUtility {
 
     // ~ getUsdAmountOutSingle() Testing ~
 
-    function test_stake_getUsdAmountOutSingle(uint256 _amount) public {
-        uint256 quote = stake.getUsdAmountOutSingle(WMATIC, _amount);
-        assertGt(quote, 0);
-    }
+    // function test_stake_getUsdAmountOutSingle(uint256 _amount) public {
+    //     uint256 quote = stake.getUsdAmountOutSingle(WMATIC, _amount);
+    //     assertGt(quote, 0);
+    // }
 
     // ~ stakeAsset() Testing ~
 
     function test_stake_mintFoundry() public {
         
+        dev.try_updateTokenWhitelist(address(stake), WBTC, true);
+
         assertEq(IERC20(WBTC).balanceOf(address(10)), 0);
         mint("WBTC", address(10), 10*BTC);
         

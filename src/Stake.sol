@@ -19,7 +19,7 @@ import { IQuoter, IUniswapV3Factory, ISwapRouter, IERC20 } from "./interfaces/In
 ///          - How to mint STATH tokens from an external smart contract.
 ///          - Allow people to stake more assets when already staked. Solution: Force timelock
 ///          - Discuss timelocks - which timeframes
-contract Stake is Ownable{
+contract Stake is Ownable {
 
     // ---------------
     // State Variables
