@@ -19,6 +19,7 @@ contract Locker is Ownable{
     uint256 private floatAmount;    /// @notice Stores the amount of funds that is set aside to float.
     uint256 private rewardsAmount;  /// @notice Stores the amount of funds that is used for rewards, upon distribution.
     address public stableCurrency;  /// @notice Stores the address of the stablecurrency used to deposit and distribute rewards.
+    address public treasury;        /// @notice Stores the address of the treasury contract.
 
     address[] accountManagers;  /// @notice Stores an array of verified account managers.
     AprData[4] aprLibrary;      /// @notice Stores size:4 array of different apr amounts with their associated timelock.
@@ -42,10 +43,14 @@ contract Locker is Ownable{
 
     constructor (
         address _dev,
-        address _admin
+        address _admin,
+        address _stableCurrency,
+        address _treasury
     ) {
         transferOwnership(_dev);
         admin = _admin;
+        stableCurrency = _stableCurrency;
+        treasury = _treasury;
 
         setBaseAprData();
     }
@@ -149,6 +154,12 @@ contract Locker is Ownable{
     /// @notice This function is used to change the admin address in the admin global var.
     /// @param  _newAdmin the new admin wallet.
     function updateAdmin(address _newAdmin) public onlyOwner() {
+
+    }
+
+    /// @notice This function is used to update the treasury contract.
+    /// @param  _newTreasury new treasury contract address.
+    function updateTreasury(address _newTreasury) public onlyOwner() {
 
     }
 
