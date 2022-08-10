@@ -3,6 +3,9 @@ pragma solidity ^0.8.6;
 
 import "./OpenZeppelin/Ownable.sol";
 
+import { IERC20 } from "./interfaces/InterfacesAggregated.sol";
+
+
 // Epoch Calculator: https://www.unixtimestamp.com/
 
 /// @dev    This contract holds rewards in escrow until it's time distribute rewards to stakeholders.
@@ -20,9 +23,11 @@ contract Locker is Ownable{
     uint256 private rewardsAmount;  /// @notice Stores the amount of funds that is used for rewards, upon distribution.
     address public stableCurrency;  /// @notice Stores the address of the stablecurrency used to deposit and distribute rewards.
     address public treasury;        /// @notice Stores the address of the treasury contract.
+    address public stakingContract; /// @notice Stores the address of Stake.sol
+    address[] accountManagers;      /// @notice Stores an array of verified account managers.
 
-    address[] accountManagers;  /// @notice Stores an array of verified account managers.
-    AprData[4] aprLibrary;      /// @notice Stores size:4 array of different apr amounts with their associated timelock.
+    AprData[4] aprLibrary;                  /// @notice Stores size:4 array of different apr amounts with their associated timelock.
+    StakingPoolData[4] stakingPoolLibrary;  /// @notice Stores the updated staking pool data for each lock type.
 
     // TIMELOCKS && APRs
     // 1  =>  1  month   =>  12%
@@ -36,6 +41,12 @@ contract Locker is Ownable{
         uint256 apr;       //  1200     1600     2000      2500
     }
 
+    struct StakingPoolData {
+        uint8 lockType;
+        uint256 numStakeholders;
+        uint256 amountStakedUsdc;
+    }
+
 
     // -----------
     // Constructor
@@ -45,11 +56,13 @@ contract Locker is Ownable{
         address _dev,
         address _admin,
         address _stableCurrency,
+        address _stakingContract,
         address _treasury
     ) {
         transferOwnership(_dev);
         admin = _admin;
         stableCurrency = _stableCurrency;
+        stakingContract = _stakingContract;
         treasury = _treasury;
 
         setBaseAprData();
@@ -82,6 +95,12 @@ contract Locker is Ownable{
         "Locker.sol::isAdmin() msg.sender != admin");
         _;
     }
+
+    modifier isStakingContract() {
+        require(msg.sender == stakingContract,
+        "Locker.sol::isStakingContract() msg.sender != Stake.sol");
+        _;
+    }
     
 
     // ---------
@@ -108,11 +127,20 @@ contract Locker is Ownable{
         aprLibrary[3].apr = 2500;
     }
 
-    /// @notice This function will distribute rewards to the stakeholders
-    /// @dev    Funds are sent to stake.sol
+    /// @notice This function will distribute rewards to the stakeholders.
+    /// @dev    Funds are sent to stake.sol.
     ///         If the funds that are being distributed is over the getBaseRewardsNeeded value, it goes into float.
     function distributeRewards() public {
     
+    }
+
+    /// @notice This function updates the data within stakingPoolLibrary.
+    /// @dev    Called by the staking contract everytime funds are sent to the Treasury and the staking pool is updated.
+    ///         This data will be used to calculate reward distributions when rewards are distributed.
+    ///         Should be called for each lock type once every reward distribution period (i.e. weekly).
+    /// @param  _lockType specifies which lock type.
+    function updateStakingPoolData(uint8 _lockType) public isStakingContract() {
+
     }
 
     /// @notice This function allows an account manager to deposit funds into this contract to later be distributed as rewards.
