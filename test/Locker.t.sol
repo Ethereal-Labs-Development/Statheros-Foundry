@@ -10,16 +10,28 @@ import "../src/users/Actor.sol";
 import "./PolygonUtility.sol";
 
 
-contract TreasuryTest is Test, PolygonUtility {
+contract LockerTest is Test, PolygonUtility {
 
     Locker locker;
 
     function setUp() public {
 
         locker = new Locker(
-            
+            address(dev),
+            address(arn),
+            USDC,
+            address(1),
+            address(2)
         );
 
+    }
+
+    function test_locker_init_state() public {
+        assertEq(locker.owner(), address(dev));
+        assertEq(locker.admin(), address(arn));
+        assertEq(locker.stableCurrency(), USDC);
+        assertEq(locker.stakingContract(), address(1));
+        assertEq(locker.treasury(), address(2));
     }
 
 }

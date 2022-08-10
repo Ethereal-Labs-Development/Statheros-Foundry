@@ -16,7 +16,7 @@ contract Treasury is Ownable {
     // State Variables
     // ---------------
 
-    address private admin;          /// @notice Stores address of admin wallet.
+    address public admin;          /// @notice Stores address of admin wallet.
     address public stakingContract; /// @notice Stores the address of Stake.sol
     address public stableCurrency;  /// @notice Stores contract address of stable coin being used to withdraw and deposit into contract.
 

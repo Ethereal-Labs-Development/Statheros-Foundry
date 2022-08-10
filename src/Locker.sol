@@ -18,9 +18,9 @@ contract Locker is Ownable{
     // State Variables
     // ---------------
 
-    address private admin;          /// @notice Stores address of admin wallet.
-    uint256 private floatAmount;    /// @notice Stores the amount of funds that is set aside to float.
-    uint256 private rewardsAmount;  /// @notice Stores the amount of funds that is used for rewards, upon distribution.
+    address public admin;           /// @notice Stores address of admin wallet.
+    uint256 public floatAmount;     /// @notice Stores the amount of funds that is set aside to float.
+    uint256 public rewardsAmount;   /// @notice Stores the amount of funds that is used for rewards, upon distribution.
     address public stableCurrency;  /// @notice Stores the address of the stablecurrency used to deposit and distribute rewards.
     address public treasury;        /// @notice Stores the address of the treasury contract.
     address public stakingContract; /// @notice Stores the address of Stake.sol
