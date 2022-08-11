@@ -17,9 +17,19 @@ contract TreasuryTest is Test, PolygonUtility {
     function setUp() public {
 
         treasury = new Treasury(
-            USDC
+            address(dev),
+            address(arn),
+            USDC,
+            address(1)
         );
 
+    }
+
+    function test_treasury_init_state() public {
+        assertEq(treasury.owner(), address(dev));
+        assertEq(treasury.admin(), address(arn));
+        assertEq(treasury.stableCurrency(), USDC);
+        assertEq(treasury.stakingContract(), address(1));
     }
 
 }
