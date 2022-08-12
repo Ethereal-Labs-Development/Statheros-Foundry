@@ -38,6 +38,8 @@ contract PolygonUtility is Test {
 
     uint256 constant USD = 10 ** 6;
     uint256 constant BTC = 10 ** 8;
+    uint256 constant MTC = 10 ** 18;
+    
     uint256 constant WAD = 10 ** 18;
     uint256 constant RAY = 10 ** 27;
 
@@ -104,10 +106,11 @@ contract PolygonUtility is Test {
         bool check = ((diff * RAY) / denominator) < (RAY / 10 ** accuracy);
 
         if (!check){
-            // use Foundry's logging events to log string, uint pairs.
+            // use Foundry's logging events to log string, uint pairs, and throw failures.
             emit log_named_uint("Error: approx a == b not satisfied, accuracy digits ", accuracy);
             emit log_named_uint("  Expected", val0);
             emit log_named_uint("  Actual", val1);
+            fail("Not within expected precision.");
         }
     }
 
@@ -117,10 +120,11 @@ contract PolygonUtility is Test {
         bool check = actualDiff <= expectedDiff;
 
         if (!check) {
-            // use Foundry's logging events to log string, uint pairs.
+            // use Foundry's logging events to log string, uint pairs, and throw failures.
             emit log_named_uint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
             emit log_named_uint("  Expected", val0);
             emit log_named_uint("  Actual", val1);
+            fail("Not within expected difference.");
         }
     }
 

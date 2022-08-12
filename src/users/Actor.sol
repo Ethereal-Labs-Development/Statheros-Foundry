@@ -33,4 +33,9 @@ contract Actor {
           (ok,) = address(stake).call(abi.encodeWithSignature(sig, _token));
     }
 
+    function try_updateTokenPools(address stake, address _token, uint256 _decimals, uint24 _fee) external returns (bool ok) {
+          string memory sig = "updateTokenPools(address,uint256,uint24)";
+          (ok,) = address(stake).call(abi.encodeWithSignature(sig, _token, _decimals, _fee));
+    }
+
 }
