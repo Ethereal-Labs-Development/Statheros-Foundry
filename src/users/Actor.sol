@@ -33,4 +33,14 @@ contract Actor {
           (ok,) = address(stake).call(abi.encodeWithSignature(sig, _token));
     }
 
+     function try_mint(address _token, address _wallet, uint256 _amount) external returns (bool ok) {
+          string memory sig = "mint(address,uint256)";
+          (ok,) = address(_token).call(abi.encodeWithSignature(sig, _wallet, _amount));
+    }
+
+     function try_burn(address _token, address _wallet, uint256 _amount) external returns (bool ok) {
+          string memory sig = "burn(address,uint256)";
+          (ok,) = address(_token).call(abi.encodeWithSignature(sig, _wallet, _amount));
+    }
+
 }

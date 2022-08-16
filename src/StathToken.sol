@@ -171,11 +171,27 @@ contract StathToken is Ownable {
     /// @dev    Does not truncate so amount needs to include the 18 decimal points.
     /// @param  _wallet the account we're minting tokens to.
     /// @param  _amount the amount of tokens we're minting.
-    function mint(address _wallet, uint256 _amount) external isTreasury(msg.sender) {
-        
+    function mint(address _wallet, uint256 _amount) external {
+        require(_wallet != address(0), "StathToken.sol::mint() _wallet cannot be address 0");
+        require(_amount > 0, "StathToken.sol::mint() cannot mint 0 tokens");
+
+        _totalSupply += _amount;
+        balances[_wallet] += _amount;
+
+        emit Transfer(address(0), _wallet, _amount);
     }
 
-    // TODO: add burn() function
+
+    function burn(address _wallet, uint256 _amount) public {
+        require(_wallet != address(0), "StathToken.sol::burn() _wallet cannot be address 0");
+        require(balances[_wallet] >= _amount, "StathToken.sol::burn() burn amount exceeds balance");
+
+        _totalSupply -= _amount;
+        balances[_wallet] -= _amount;
+
+        emit Transfer(_wallet, address(0), _amount);
+    }
+
 
     // ~ Admin ~
 

@@ -19,7 +19,14 @@ contract StakeTest is Test, PolygonUtility {
 
     function setUp() public {
 
-        stathToken = new StathToken();
+        stathToken = new StathToken(
+            100000, // NOTE: DO NOT ADD 18 ZEROS, when deployed set to 0
+            18,
+            "StathToken",
+            "STATH",
+            address(dev)
+        );
+        
         treasury = new Treasury(USDC);
 
         stake = new Stake(
