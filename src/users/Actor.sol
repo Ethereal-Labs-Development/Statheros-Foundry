@@ -43,4 +43,9 @@ contract Actor {
           (ok,) = address(_token).call(abi.encodeWithSignature(sig, _wallet, _amount));
     }
 
+     function try_updateAdmin(address _treasury, address _newAdmin) external returns (bool ok) {
+          string memory sig = "updateAdmin(address)";
+          (ok,) = address(_treasury).call(abi.encodeWithSignature(sig, _newAdmin));
+    }
+
 }
