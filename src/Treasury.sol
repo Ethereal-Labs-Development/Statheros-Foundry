@@ -74,7 +74,11 @@ contract Treasury is Ownable {
     /// @notice This function is used to change the admin address in the admin global var.
     /// @param  _newAdmin the new admin wallet.
     function updateAdmin(address _newAdmin) public onlyOwner() {
+        require(_newAdmin != address(0), "Treasury.sol::updateAdmin() _newAdmin == address(0)");
+        require(_newAdmin != admin, "Treasury.sol::updateAdmin() _newAdmin == admin");
 
+        emit OwnershipTransferred(admin, _newAdmin);
+        admin = _newAdmin;
     }
 
     /// @notice This function is used to update the staking contract.

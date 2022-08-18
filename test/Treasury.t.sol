@@ -32,4 +32,27 @@ contract TreasuryTest is Test, PolygonUtility {
         assertEq(treasury.stakingContract(), address(1));
     }
 
+    function test_treasury_updateAdmin() public {
+        //Pre-State check: checking _admin address.
+        assertEq(treasury.admin(), address(arn));
+
+        //State Change: attempt to update admin address.    
+        assert(dev.try_updateAdmin(address(treasury), address(32)));
+
+        //Post-State check: verify _admin address has been updated.
+        assertEq(treasury.admin(), address(32));
+    }
+
+   function test_treasury_updateAdmin_restrictions () public {
+        //_newAdmin cannot be address(0).
+        assert(!dev.try_updateAdmin(address(treasury), address(0)));
+
+        //_newAdmin cannot be previous admin.
+        assert(!dev.try_updateAdmin(address(treasury), address(arn)));
+
+        //updating to a legitimate admin address.
+        assert(dev.try_updateAdmin(address(treasury), address(32)));
+    }
+
+
 }
