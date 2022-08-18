@@ -49,6 +49,9 @@ contract TreasuryTest is Test, PolygonUtility {
 
         //_newAdmin cannot be previous admin.
         assert(!dev.try_updateAdmin(address(treasury), address(arn)));
+
+        //updating to a legitimate admin address.
+        assert(dev.try_updateAdmin(address(treasury), address(32)));
     }
 
 
