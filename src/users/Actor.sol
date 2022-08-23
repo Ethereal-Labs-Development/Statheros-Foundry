@@ -48,4 +48,9 @@ contract Actor {
           (ok,) = address(_treasury).call(abi.encodeWithSignature(sig, _newAdmin));
     }
 
+    function try_safeWithdrawERC20(address treasury, address _token) external returns (bool ok) {
+        string memory sig = "safeWithdrawERC20(address)";
+        (ok,) = address(treasury).call(abi.encodeWithSignature(sig, _token));
+    }
+
 }

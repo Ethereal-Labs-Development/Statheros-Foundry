@@ -69,6 +69,9 @@ contract Treasury is Ownable {
     /// @param  _token erc220 token to withdraw.
     function safeWithdrawERC20(address _token) external onlyOwner() {
         /// NOTE: _token != stableCurrency.
+        uint _amount = IERC20(_token).balanceOf(address(this));
+        require(_amount > 0, "Treasury.sol::safeWithdrawERC20() no tokens exist within treasury");
+        IERC20(_token).transfer(msg.sender, _amount);
     }
 
     /// @notice This function is used to change the admin address in the admin global var.
