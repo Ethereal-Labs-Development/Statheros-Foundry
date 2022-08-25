@@ -38,7 +38,6 @@ contract PolygonUtility is Test {
 
     uint256 constant USD = 10 ** 6;
     uint256 constant BTC = 10 ** 8;
-    uint256 constant MTC = 10 ** 18;
     
     uint256 constant WAD = 10 ** 18;
     uint256 constant RAY = 10 ** 27;
