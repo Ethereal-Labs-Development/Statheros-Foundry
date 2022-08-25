@@ -20,6 +20,8 @@ contract PolygonUtility is Test {
     address constant USDC   = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;  // https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174
     address constant USDT   = 0xc2132D05D31c914a87C6611C10748AEb04B58e8F;  // https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f
     address constant WBTC   = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;  // https://polygonscan.com/token/0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6
+    address constant WETH   = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;  // https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619
+
 
     /**************/
     /*** Actors ***/
@@ -36,13 +38,14 @@ contract PolygonUtility is Test {
 
     uint256 constant USD = 10 ** 6;
     uint256 constant BTC = 10 ** 8;
+    
     uint256 constant WAD = 10 ** 18;
     uint256 constant RAY = 10 ** 27;
 
     /*****************/
     /*** Utilities ***/
     /*****************/
-
+    
     struct Token {
         address addr; // ERC20 Mainnet address
         uint256 slot; // Balance storage slot
@@ -50,12 +53,10 @@ contract PolygonUtility is Test {
     }
  
     mapping (bytes32 => Token) tokens;
-    
+
     event Debug(string, uint256);
     event Debug(string, address);
     event Debug(string, bool);
-    
-    event logUint(string, uint256);
 
     /******************************/
     /*** Test Utility Functions ***/
@@ -70,8 +71,8 @@ contract PolygonUtility is Test {
         tokens["DAI"].slot = 2;
         //tokens["DAI"].orcl = 0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9;
 
-        //tokens["WETH"].addr = WETH;
-        //tokens["WETH"].slot = 3;
+        tokens["WETH"].addr = WETH;
+        tokens["WETH"].slot = 3;
         //tokens["WETH"].orcl = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
 
         tokens["WBTC"].addr = WBTC;
@@ -85,7 +86,7 @@ contract PolygonUtility is Test {
         uint256 slot  = tokens[symbol].slot;
         uint256 bal = IERC20(addr).balanceOf(account);
 
-        // use Foundry's vm to call store cheatcode
+        // use Foundry's vm to call "store" cheatcode
         vm.store(
             addr,
             keccak256(abi.encode(account, slot)), // Mint tokens
@@ -94,7 +95,6 @@ contract PolygonUtility is Test {
 
         assertEq(IERC20(addr).balanceOf(account), bal + amt); // Assert new balance
     }
-
 
     // Verify equality within accuracy decimals
     function withinPrecision(uint256 val0, uint256 val1, uint256 accuracy) public {
@@ -105,10 +105,11 @@ contract PolygonUtility is Test {
         bool check = ((diff * RAY) / denominator) < (RAY / 10 ** accuracy);
 
         if (!check){
-            emit logUint("Error: approx a == b not satisfied, accuracy digits ", accuracy);
-            emit logUint("  Expected", val0);
-            emit logUint("    Actual", val1);
-            //fail();
+            // use Foundry's logging events to log string, uint pairs, and throw failures.
+            emit log_named_uint("Error: approx a == b not satisfied, accuracy digits ", accuracy);
+            emit log_named_uint("  Expected", val0);
+            emit log_named_uint("  Actual", val1);
+            fail("Not within expected precision.");
         }
     }
 
@@ -118,10 +119,11 @@ contract PolygonUtility is Test {
         bool check = actualDiff <= expectedDiff;
 
         if (!check) {
-            emit logUint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
-            emit logUint("  Expected", val0);
-            emit logUint("    Actual", val1);
-            //fail();
+            // use Foundry's logging events to log string, uint pairs, and throw failures.
+            emit log_named_uint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
+            emit log_named_uint("  Expected", val0);
+            emit log_named_uint("  Actual", val1);
+            fail("Not within expected difference.");
         }
     }
 
